@@ -4,8 +4,8 @@ import "io"
 
 // Reader offers support for reads of arbitrary bit length.
 type Reader struct {
-	len  uint
 	r    io.Reader
+	len  uint
 	bits byte
 }
 

@@ -4,8 +4,8 @@ import "io"
 
 // Writer offers support for writes of arbitrary bit length.
 type Writer struct {
-	free uint
 	w    io.Writer
+	free uint
 	bits byte
 }
 
