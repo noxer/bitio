@@ -1,6 +1,8 @@
 package bitio
 
-import "io"
+import (
+	"io"
+)
 
 // Writer offers support for writes of arbitrary bit length.
 type Writer struct {
@@ -22,16 +24,22 @@ func NewWriter(w io.Writer) *Writer {
 
 // Flush writes the remaining buffer into the writer. If the buffer is empty this is a no-op.
 func (w *Writer) Flush() error {
-	if w.free != 8 {
+	if w.free == 8 {
 		return nil
 	}
-	_, err := w.w.Write([]byte{w.bits})
+	_, err := w.w.Write([]byte{w.bits << w.free})
+	w.bits = 0
 	w.free = 8
 	return err
 }
 
 // WriteBits8 writes up to 8 bits into the writer. When a full byte is reached in the buffer it is written to the underlying writer.
 func (w *Writer) WriteBits8(b byte, n uint) error {
+	//fmt.Printf("b: %d, n: %d, free: %d\n", b, n, w.free)
+	if n == 0 {
+		return nil
+	}
+
 	if n > 8 {
 		n = 8
 	}
@@ -44,7 +52,7 @@ func (w *Writer) WriteBits8(b byte, n uint) error {
 
 	w.free -= n
 	w.bits <<= n
-	w.bits |= (b & (1<<n - 1))
+	w.bits |= ((b >> rem) & (1<<n - 1))
 
 	var err error
 	if w.free == 0 {
@@ -54,7 +62,6 @@ func (w *Writer) WriteBits8(b byte, n uint) error {
 		return err
 	}
 
-	b >>= n
 	return w.WriteBits8(b, rem)
 }
 
