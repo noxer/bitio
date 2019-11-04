@@ -11,6 +11,7 @@ type Reader struct {
 
 // NewReader creates a new bit reader for r. If r is already a bit reader it just returns r.
 func NewReader(r io.Reader) *Reader {
+	// just return when this is already the right reader
 	if br, ok := r.(*Reader); ok {
 		return br
 	}
@@ -19,8 +20,8 @@ func NewReader(r io.Reader) *Reader {
 	}
 }
 
-// fillBits makes sure that at least one bit is in the bits buffer, otherwise it will try to read a new byte into the buffer.
-func (r *Reader) fillBits() error {
+// fillBuffer makes sure that at least one bit is in the bits buffer, otherwise it will try to read a new byte into the buffer.
+func (r *Reader) fillBuffer() error {
 	if r.len != 0 {
 		return nil
 	}
@@ -37,14 +38,14 @@ func (r *Reader) fillBits() error {
 	return nil
 }
 
-// ReadBits8 reads n bits from the source into the returned byte. Will not read more than 8 bits.
-func (r *Reader) ReadBits8(n uint) (uint8, error) {
+// ReadUint8 reads n bits from the source into the returned byte. Will not read more than 8 bits.
+func (r *Reader) ReadUint8(n uint) (uint8, error) {
 	if n > 8 {
 		n = 8
 	}
 
 	// make sure the buffer is filled
-	if err := r.fillBits(); err != nil {
+	if err := r.fillBuffer(); err != nil {
 		return 0, err
 	}
 
@@ -72,7 +73,7 @@ func (r *Reader) ReadBits8(n uint) (uint8, error) {
 
 	// shift the partial result and read the other part
 	res <<= rem
-	o, err := r.ReadBits8(rem)
+	o, err := r.ReadUint8(rem)
 	return res | o, err
 }
 
@@ -82,7 +83,7 @@ func (r *Reader) Read(p []byte) (int, error) {
 		err error
 	)
 	for i = range p {
-		p[i], err = r.ReadBits8(8)
+		p[i], err = r.ReadUint8(8)
 		if err != nil {
 			break
 		}
@@ -106,7 +107,7 @@ func (r *Reader) ReadBits(p []byte, n uint) (int, error) {
 
 	n %= 8
 	if n > 0 {
-		p[c], err = r.ReadBits8(n)
+		p[c], err = r.ReadUint8(n)
 		c++
 	}
 
@@ -115,7 +116,7 @@ func (r *Reader) ReadBits(p []byte, n uint) (int, error) {
 
 // Bit reads a single bit from the reader and returns it as a bool (1 == true, 0 == false).
 func (r *Reader) Bit() (bool, error) {
-	b, err := r.ReadBits8(1)
+	b, err := r.ReadUint8(1)
 	return b == 1, err
 }
 

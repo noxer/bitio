@@ -5,6 +5,15 @@ import (
 	"testing"
 )
 
+func TestNewReader(t *testing.T) {
+	r1 := NewReader(nil)
+	r2 := NewReader(r1)
+
+	if r1 != r2 {
+		t.Error("Expected r1 and r2 to be equal")
+	}
+}
+
 func TestBit(t *testing.T) {
 	results := []bool{true, false, true, false, true, false, true, false, true, true, true, true, true, true, true, true}
 	r := NewReader(bytes.NewReader([]byte{0b10101010, 0b11111111}))
@@ -30,7 +39,7 @@ func TestReadBits8(t *testing.T) {
 	args := []uint{3, 3, 5, 1, 4}
 	r := NewReader(bytes.NewReader([]byte{200, 0b10101010, 0b11111111}))
 
-	b, err := r.ReadBits8(42)
+	b, err := r.ReadUint8(42)
 	if err != nil {
 		t.Error("Expected no error at start of input data")
 	}
@@ -39,7 +48,7 @@ func TestReadBits8(t *testing.T) {
 	}
 
 	for i, e := range results {
-		b, err = r.ReadBits8(args[i])
+		b, err = r.ReadUint8(args[i])
 		if err != nil {
 			t.Errorf("Error in read #%d: %s", i, err)
 		}
@@ -48,7 +57,7 @@ func TestReadBits8(t *testing.T) {
 		}
 	}
 
-	_, err = r.ReadBits8(4)
+	_, err = r.ReadUint8(4)
 	if err == nil {
 		t.Error("Expected error at end of input data, got none!")
 	}
