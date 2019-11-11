@@ -105,6 +105,17 @@ func (w *Writer) Bit(b bool) error {
 	return w.WriteBits8(by, 1)
 }
 
+// Bits writes a slice of bits into the writer.
+func (w *Writer) Bits(bs []bool) error {
+	for _, b := range bs {
+		err := w.Bit(b)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // BitsBuffered returns the number of bits that are currently buffered in the writer. This value is valid until the next write.
 func (w *Writer) BitsBuffered() uint {
 	return 8 - w.free

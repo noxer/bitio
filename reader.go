@@ -120,6 +120,19 @@ func (r *Reader) Bit() (bool, error) {
 	return b == 1, err
 }
 
+// Bits reads n bits from the reader and returns them as a []bool.
+func (r *Reader) Bits(n int) ([]bool, error) {
+	bits := make([]bool, n)
+	for i := 0; i < n; i++ {
+		b, err := r.Bit()
+		if err != nil {
+			return bits, err
+		}
+		bits[i] = b
+	}
+	return bits, nil
+}
+
 // BitsBuffered returns the number of bits that are currently buffered in the reader. This value is valid until the next read.
 func (r *Reader) BitsBuffered() uint {
 	return r.len
