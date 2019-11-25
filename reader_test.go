@@ -14,12 +14,12 @@ func TestNewReader(t *testing.T) {
 	}
 }
 
-func TestBit(t *testing.T) {
+func TestBool(t *testing.T) {
 	results := []bool{true, false, true, false, true, false, true, false, true, true, true, true, true, true, true, true}
 	r := NewReader(bytes.NewReader([]byte{0b10101010, 0b11111111}))
 
 	for i, e := range results {
-		b, err := r.Bit()
+		b, err := r.Bool()
 		if err != nil {
 			t.Errorf("Error in bit #%d: %s", i, err)
 		}
@@ -28,7 +28,7 @@ func TestBit(t *testing.T) {
 		}
 	}
 
-	_, err := r.Bit()
+	_, err := r.Bool()
 	if err == nil {
 		t.Error("Expected error at end of input data, got none!")
 	}

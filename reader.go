@@ -114,17 +114,33 @@ func (r *Reader) ReadBits(p []byte, n uint) (int, error) {
 	return c, err
 }
 
-// Bit reads a single bit from the reader and returns it as a bool (1 == true, 0 == false).
-func (r *Reader) Bit() (bool, error) {
-	b, err := r.ReadUint8(1)
+// Bool reads a single bit from the reader and returns it as a boolean.
+func (r *Reader) Bool() (bool, error) {
+	b, err := r.Bit()
 	return b == 1, err
 }
 
-// Bits reads n bits from the reader and returns them as a []bool.
-func (r *Reader) Bits(n int) ([]bool, error) {
+// Bit reads a single bit from the reader and returns it as a bool (1 == true, 0 == false).
+func (r *Reader) Bit() (b byte, err error) {
+	if r.len == 0 {
+		err = r.fillBuffer()
+		if err != nil {
+			return
+		}
+	}
+
+	r.len--
+	b = r.bits >> r.len
+	r.bits -= b << r.len
+
+	return
+}
+
+// Bools reads n bits from the reader and returns them as a []bool.
+func (r *Reader) Bools(n int) ([]bool, error) {
 	bits := make([]bool, n)
 	for i := 0; i < n; i++ {
-		b, err := r.Bit()
+		b, err := r.Bool()
 		if err != nil {
 			return bits, err
 		}

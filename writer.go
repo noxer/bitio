@@ -96,19 +96,30 @@ func (w *Writer) WriteBits(p []byte, n uint) (int, error) {
 	return c, err
 }
 
-// Bit writes a single bit into the writer.
-func (w *Writer) Bit(b bool) error {
-	var by byte
+// Bool writes a bool as a single bit into the writer.
+func (w *Writer) Bool(b bool) error {
 	if b {
-		by = 1
+		return w.Bit(1)
 	}
-	return w.WriteBits8(by, 1)
+	return w.Bit(0)
 }
 
-// Bits writes a slice of bits into the writer.
-func (w *Writer) Bits(bs []bool) error {
+// Bit writes a single bit into the writer.
+func (w *Writer) Bit(b byte) (err error) {
+	w.bits <<= 1
+	w.bits |= (b & 1)
+	w.free--
+
+	if w.free == 0 {
+		err = w.Flush()
+	}
+	return
+}
+
+// Bools writes a slice of booleans into the writer.
+func (w *Writer) Bools(bs []bool) error {
 	for _, b := range bs {
-		err := w.Bit(b)
+		err := w.Bool(b)
 		if err != nil {
 			return err
 		}
